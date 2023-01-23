@@ -5,23 +5,23 @@ class Solution:
 
         Input: s = "deeedbbcccbdaa", k = 3
 
-
         use stack
            - counter [1]
            - string  [d
 
-           # corner case: stack is empty
+        # corner case: stack is empty
            when stack[-1] != letter, push the letter and 1 to the counter stack
            when stack[-1] == letter and counter[-1] == k -1, pop k - 2 element from letter stack, and pop 1 element from the counter stack
            and counter(index -1) == 2
         Time and Space complexity: O(n)
+
+        input "abcdefghi"
         """
         if not s or k is None:
             return ""
 
-        stack_letter = []  # d d b
-        stack_counter = []  # 2 1
-
+        stack_letter = []  # a a
+        stack_counter = []  # 1 1 1 1 1 1 1...fa
         # Input: s = "deeedbbcccbdaa", k = 3
 
         for letter in s:  # e
