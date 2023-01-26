@@ -2,80 +2,79 @@ class Solution:
     def trap(self, height: List[int]) -> int:
         """
         42. Trapping Rain Water
-        https://leetcode.com/problems/trapping-rain-water/description/
 
-        indices   0 1 2 3 4 5 6 7 8 9 10 11
-        height = [0,1,0,2,1,0,1,3,2,1 ,2 ,1]
 
-        max_heights = [
-            (1, 1),
-            (3, 2),
-            (7, 3),
-            (10, 2),
-            (11, 1),
-        ]
+        decreasing mono stack
+        - when height is bigger than top of the stack pop.
 
-        max_heights_from_right_to_left = [
-            (11, 1),
-            (10, 2),
-            (7, 3),
-        ]
+        i 0 1 2 3 4 5 6 7 8 9 0 1
+        v[0,1,0,2,1,0,1,3,2,1,2,1]
 
-        boundary_map = {
-           2: 1,   1
-           4: 2,   1
-           5: 2,   2
-           6: 2,   1
-           8: 2,   0
-           9: 2,   1
-        }
+                        |
+                | W W W | | W |
+            | W | | W | | | | | |
 
+        monotonic decreasing stack
+        i[7 8 10 11]
+        v[3 2 2 1]
+
+        987654321
+
+        (right wall)
+        current_index = 10
+        current_value = 2
+
+        (bottom)
+        poped_i = 9
+        poped_v = 1
+
+        # if stack is empty, exit inner loop
+        (left wall)
+        top_i = 8
+        top_v = 2
+
+        distance = current_index - top_i - 1  # 10 - 8 - 1 = 1
+        height = min(top_v, current_value) - poped_v  # 2 - 1 = 1
+
+        water_volumn += height * distance  # 1 + 1 + 0 + 3 + 1
         """
 
         if not height:
             return 0
-
-        max_heights = []
-        max_indices = set()
-        max = 0
-        for i, h in enumerate(height):
-            if h > max:
-                max = h
-                max_heights.append((i, h))
-                max_indices.add(i)
-
-        max_heights_from_right_to_left = []
-        max = 0
-        for i, h in reversed(list(enumerate(height))):
-            if h > max:
-                max = h
-                max_heights_from_right_to_left.append((i, h))
-
-        while max_heights_from_right_to_left:
-            i, h = max_heights_from_right_to_left.pop()
-            if i not in max_indices:
-                max_heights.append((i, h))
-
-        # At least two boundaries are required
-        if len(max_heights) < 2:
+        if len(height) < 2:
             return 0
 
-        prev_index, prev_height = max_heights[0]  # (1, 1) (3, 2)
+        water_volumn = 0
+        mono_desc_stack = []  #
 
-        boundary_map = dict()
+        """
+        i 0 1 2 3 4 5 6 7 8 9 0 1
+        v[0,1,0,2,1,0,1,3,2,1,2,1]
 
-        for cur_index, cur_height in max_heights[1:]:  # (3, 2), (7, 3),
-            min_height = min(prev_height, cur_height)  # 1, 2
-            for i in range(prev_index + 1, cur_index):
-                boundary_map[i] = min_height
-            prev_index = cur_index  #
-            prev_height = cur_height
+                        | 
+                | W W W | | W |
+            | W | | W | | | | | |
 
-        sum = 0
-        for i, h in enumerate(height):
-            if i in boundary_map:
-                sum += boundary_map[i] - h
+        mono_desc_stack = [0]
+        """
 
-        return sum
+        for i, current_wall_height in enumerate(height):  # 1, 1
 
+            while (mono_desc_stack and height[mono_desc_stack[-1]] < current_wall_height):
+                bottom_height = height[mono_desc_stack[-1]]
+                mono_desc_stack.pop()
 
+                if not mono_desc_stack:
+                    break
+
+                left_wall_index = mono_desc_stack[-1]
+                left_wall_height = height[left_wall_index]
+
+                distance = i - left_wall_index - 1
+                wall_height = min(left_wall_height, current_wall_height) - bottom_height
+
+                water_volumn += distance * wall_height
+
+            mono_desc_stack.append(i)
+
+        return water_volumn
